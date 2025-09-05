@@ -3,11 +3,56 @@ const loadData = () =>{
     .then((res) => res.json())
     .then((json) => displayLesson(json.data))
 }
+const loadDetails = async(id) =>{
+    const url = `https://openapi.programming-hero.com/api/word/${id}`
+    const res = await fetch(url);
+    const details = await res.json();
+    displayWordDetails(details.data)
+}
+const displayWordDetails = (details) =>{
+    const modalBox = document.getElementById("details-container")
+    modalBox.innerHTML = `<div id="details-container" class=" space-y-4">
+    <h2 class="text-3xl font-bangla font-bold">${details.word} (<i class="fa-solid fa-microphone-lines"></i>:${details.pronunciation})</h2>
+    <div>
+        <h3 class="font-semibold text-xl">Meaning</h3>
+        <p>${details.meaning}</p>
+    </div>
+    <div>
+        <h3 class="font-semibold text-xl">Example</h3>
+        <p class="text-gray-400">${details.sentence}</p>
+    </div>
+    <div>
+        <h3 class="text-xl font-bangla">সমার্থক শব্দ গুলো</h3>
+        <span class="bg-[#D7E4EF] py-1 px-2 rounded-lg">${details.synonyms[0]}</span>
+        <span class="bg-[#D7E4EF] py-1 px-2 rounded-lg">${details.synonyms[1]}</span>
+        <span class="bg-[#D7E4EF] py-1 px-2 rounded-lg">${details.synonyms[2]}</span>
+    </div>
+    
+    <div class="modal-action">
+      <form method="dialog">
+        <!-- if there is a button in form, it will close the modal -->
+        <button class="btn">Close</button>
+      </form>
+    </div>
+  </div>`
+    document.getElementById("my_modal_5").showModal();
+}
+const remove = () =>{
+    const allBtn = document.querySelectorAll(".lesson-btn");
+    allBtn.forEach(btn => {
+        btn.classList.remove("active");
+    })
+}
 const loadLevelWord = (id) =>{
     const url = `https://openapi.programming-hero.com/api/level/${id}`
     fetch(url)
     .then((res) => res.json())
-    .then((data) => displayLessonWord(data.data))
+    .then((data) => {
+        const btnActive = document.getElementById(`lesson-btn-${id}`);
+        remove();
+        btnActive.classList.add("active");
+        displayLessonWord(data.data)
+    })
 
 }
 const displayLessonWord = (words) =>{
@@ -24,11 +69,11 @@ const displayLessonWord = (words) =>{
       words.forEach(word => {
              const card = document.createElement("div")
              card.innerHTML = `<div class="bg-white text-center py-10 px-5 rounded-xl shadow-sm h-full space-y-5">
-            <h2 class="text-3xl font-bold">${word.word}</h2>
+            <h2 class="text-3xl font-bold">${word.word? word.word : "শব্দ পাওয়া যায় নি"}</h2>
             <p class="text-xl font-medium">Meaning /Pronounciation</p>
-            <div class="text-3xl font-bangla mb-8">"${word.meaning} / ${word.pronunciation}"</div>
+            <div class="text-3xl font-bangla mb-8">"${word.meaning? word.meaning : "অর্থ পাওয়া যায় নি"} / ${word.pronunciation? word.pronunciation : "pronunciation পাওয়া যায় নি"}"</div>
             <div class="flex justify-between items-center">
-              <button class="btn bg-[#1A91FF10] hover:bg-[#1A91FF80]"><i class="fa-solid fa-circle-info"></i></button>
+              <button onclick="loadDetails(${word.id})" class="btn bg-[#1A91FF10] hover:bg-[#1A91FF80]"><i class="fa-solid fa-circle-info"></i></button>
               <button class="btn bg-[#1A91FF10] hover:bg-[#1A91FF80]"><i class="fa-solid fa-volume-high"></i></i></button>
             </div>
         </div>`;
@@ -44,7 +89,7 @@ const displayLesson = (lessons) =>{
     lessons.forEach(lesson =>{
         const btnDiv = document.createElement("div")
         btnDiv.innerHTML = `
-        <button onclick = "loadLevelWord(${lesson.level_no})" class="btn btn-outline btn-primary font-bold"><img src="./assets/fa-book-open.png"> lesson - ${lesson.level_no}</button>
+        <button id="lesson-btn-${lesson.level_no}" onclick = "loadLevelWord(${lesson.level_no})" class="btn btn-outline btn-primary font-bold lesson-btn"><img src="./assets/fa-book-open.png"> lesson - ${lesson.level_no}</button>
         `;
         lessonContainer.appendChild(btnDiv)
     })
