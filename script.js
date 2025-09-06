@@ -1,3 +1,17 @@
+const createElement = (arr) =>{
+    const htmlElement  = arr.map(el => `<span class="btn"> ${el} </span>`)
+    return(htmlElement.join(" "))
+}
+const manageSpinner = (status) =>{
+    if(status == true){
+        document.getElementById("spinner").classList.remove('hidden')
+        document.getElementById("lesson-word").classList.add('hidden')
+    }
+    else{
+        document.getElementById("lesson-word").classList.remove('hidden')
+        document.getElementById("spinner").classList.add('hidden')
+    }
+}
 const loadData = () =>{
     fetch("https://openapi.programming-hero.com/api/levels/all")
     .then((res) => res.json())
@@ -23,9 +37,7 @@ const displayWordDetails = (details) =>{
     </div>
     <div>
         <h3 class="text-xl font-bangla">সমার্থক শব্দ গুলো</h3>
-        <span class="bg-[#D7E4EF] py-1 px-2 rounded-lg">${details.synonyms[0]}</span>
-        <span class="bg-[#D7E4EF] py-1 px-2 rounded-lg">${details.synonyms[1]}</span>
-        <span class="bg-[#D7E4EF] py-1 px-2 rounded-lg">${details.synonyms[2]}</span>
+       <div>${createElement(details.synonyms)}</div>
     </div>
     
     <div class="modal-action">
@@ -44,6 +56,7 @@ const remove = () =>{
     })
 }
 const loadLevelWord = (id) =>{
+    manageSpinner(true);
     const url = `https://openapi.programming-hero.com/api/level/${id}`
     fetch(url)
     .then((res) => res.json())
@@ -51,7 +64,8 @@ const loadLevelWord = (id) =>{
         const btnActive = document.getElementById(`lesson-btn-${id}`);
         remove();
         btnActive.classList.add("active");
-        displayLessonWord(data.data)
+        displayLessonWord(data.data);
+       
     })
 
 }
@@ -64,7 +78,9 @@ const displayLessonWord = (words) =>{
             <p class="text-gray-400 text-xl">এই Lesson এ এখনো কোন Vocabulary যুক্ত করা হয়নি।</p>
             <h1 class="text-4xl font-bold">নেক্সট Lesson এ যান</h1>
         </div>`;
+         manageSpinner(false);
         return;
+        
       }
       words.forEach(word => {
              const card = document.createElement("div")
@@ -79,6 +95,7 @@ const displayLessonWord = (words) =>{
         </div>`;
              lessonWord.append(card)
              })
+              manageSpinner(false);
 }
       
       
